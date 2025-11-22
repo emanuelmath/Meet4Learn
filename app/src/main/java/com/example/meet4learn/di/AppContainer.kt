@@ -1,0 +1,44 @@
+package com.example.meet4learn.di
+
+import android.content.Context
+import com.example.meet4learn.BuildConfig
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.realtime.Realtime
+import io.github.jan.supabase.storage.Storage
+import com.example.meet4learn.domain.repositories.AuthRepository
+import com.example.meet4learn.data.repositories.AuthRepositoryImpl
+import com.example.meet4learn.data.repositories.ProfileRepositoryImpl
+import com.example.meet4learn.domain.repositories.ProfileRepository
+import com.example.meet4learn.domain.usecase.LoginStudentUseCase
+import com.example.meet4learn.domain.usecase.RegisterStudentUseCase
+
+class AppContainer (context: Context) {
+    //Cliente de Supabase.
+    val supabaseClient = createSupabaseClient(
+        supabaseUrl = BuildConfig.SUPABASE_URL,
+        supabaseKey = BuildConfig.SUPABASE_ANON_KEY
+    ) {
+        install(Auth)
+        install(Postgrest)
+        install(Realtime)
+        install(Storage)
+    }
+
+    // Repositorios.
+    val authRepository: AuthRepository by lazy {
+        AuthRepositoryImpl(supabaseClient)
+    }
+    val profileRepository: ProfileRepository by lazy {
+        ProfileRepositoryImpl(supabaseClient)
+    }
+    //UseCases.
+    val loginStudentUseCase: LoginStudentUseCase by lazy {
+        LoginStudentUseCase(authRepository, profileRepository)
+    }
+    val registerStudentUseCase: RegisterStudentUseCase by lazy {
+        RegisterStudentUseCase(authRepository)
+    }
+
+}

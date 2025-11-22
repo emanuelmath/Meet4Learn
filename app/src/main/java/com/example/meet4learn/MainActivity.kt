@@ -11,20 +11,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.meet4learn.ui.navigation.Meet4LearnNavHost
+import com.example.meet4learn.ui.navigation.Screen
 import com.example.meet4learn.ui.theme.Meet4LearnTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val appContainer = (application as Meet4LearnApplication).container
+
         setContent {
             Meet4LearnTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                val navController = rememberNavController()
+
+               Meet4LearnNavHost(
+                    navHostController = navController,
+                    appContainer = appContainer,
+                    startDestination = Screen.Splash.route
+               )
             }
         }
     }

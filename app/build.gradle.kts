@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,6 +12,10 @@ android {
     namespace = "com.example.meet4learn"
     compileSdk = 36
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.example.meet4learn"
         minSdk = 28
@@ -17,6 +24,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Configurar la conexión a la instancia de Supabase.
+        val properties = Properties()
+        val localPropertiesFile = project.rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            properties.load(FileInputStream(localPropertiesFile))
+        }
+
+        val supabaseUrl = properties.getProperty("SUPABASE_URL") ?: ""
+        val supabaseKey = properties.getProperty("SUPABASE_KEY") ?: ""
+
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseKey\"")
+
     }
 
     buildTypes {
@@ -56,6 +77,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:3.3.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.1")
 
+    //Librería de WebRTC para Android.
+    implementation("io.getstream:stream-webrtc-android:1.2.2")
 
     // ViewModels para Jetpack Compose.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
