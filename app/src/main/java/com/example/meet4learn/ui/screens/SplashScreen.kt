@@ -37,7 +37,7 @@ fun SplashScreen(navController: NavController, splashViewModel: SplashViewModel)
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(Color.White),
+        modifier = Modifier.fillMaxSize().background(Color.Blue),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
