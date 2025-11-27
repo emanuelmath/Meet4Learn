@@ -43,7 +43,6 @@ fun SplashScreen(navController: NavController, splashViewModel: SplashViewModel)
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "Meet4Learn",
-                //style = MaterialTheme.typography.displayMedium,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold
             )

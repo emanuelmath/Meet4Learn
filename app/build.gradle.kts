@@ -80,6 +80,9 @@ dependencies {
     //Librería de WebRTC para Android.
     implementation("io.getstream:stream-webrtc-android:1.2.2")
 
+    //Librería que entiende los WebSockets.
+    implementation("io.ktor:ktor-client-okhttp:3.0.1")
+
     // ViewModels para Jetpack Compose.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
     implementation("androidx.activity:activity-compose:1.11.0")

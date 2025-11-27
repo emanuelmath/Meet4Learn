@@ -25,25 +25,42 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.example.meet4learn.R
-
+import com.example.meet4learn.ui.navigation.Screen
+import com.example.meet4learn.ui.viewmodels.RegisterViewModel
 
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(navController: NavController, registerViewModel: RegisterViewModel) {
 
+    val uiState = registerViewModel.uiState
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
+
+
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Register.route) { inclusive = true }
+            }
+            //registerViewModel.resetState()
+        }
+    }
+
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
@@ -182,7 +199,7 @@ fun RegisterScreen() {
 @Composable
 fun RegisterScreenPreview() {
     MaterialTheme {
-        RegisterScreen()
+       // RegisterScreen()
     }
 }
 

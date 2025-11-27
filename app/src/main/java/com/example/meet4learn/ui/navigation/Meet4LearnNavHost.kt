@@ -39,7 +39,7 @@ fun Meet4LearnNavHost(navHostController: NavHostController,
         }
         composable(Screen.Dashboard.route) {
             val dashboardViewModel: DashboardViewModel = viewModel(
-                factory = DashboardViewModelFactory(appContainer.authRepository)
+                factory = DashboardViewModelFactory(appContainer.authRepository, appContainer.courseRepository)
             )
             DashboardScreen(navHostController, dashboardViewModel)
         }

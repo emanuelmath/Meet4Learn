@@ -109,7 +109,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {
             Text(
                 text = uiState.errorMessage,
                 color = Color.Red,
-                //style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = {

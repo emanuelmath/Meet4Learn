@@ -9,10 +9,14 @@ import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.data.repositories.AuthRepositoryImpl
+import com.example.meet4learn.data.repositories.CourseRepositoryImpl
 import com.example.meet4learn.data.repositories.ProfileRepositoryImpl
+import com.example.meet4learn.domain.repositories.CourseRepository
 import com.example.meet4learn.domain.repositories.ProfileRepository
 import com.example.meet4learn.domain.usecase.LoginStudentUseCase
 import com.example.meet4learn.domain.usecase.RegisterStudentUseCase
+import io.ktor.client.engine.okhttp.OkHttp
+
 
 class AppContainer (context: Context) {
     //Cliente de Supabase.
@@ -20,6 +24,8 @@ class AppContainer (context: Context) {
         supabaseUrl = BuildConfig.SUPABASE_URL,
         supabaseKey = BuildConfig.SUPABASE_ANON_KEY
     ) {
+        httpEngine = OkHttp.create()
+
         install(Auth)
         install(Postgrest)
         install(Realtime)
@@ -32,6 +38,9 @@ class AppContainer (context: Context) {
     }
     val profileRepository: ProfileRepository by lazy {
         ProfileRepositoryImpl(supabaseClient)
+    }
+    val courseRepository: CourseRepository by lazy {
+        CourseRepositoryImpl(supabaseClient)
     }
     //UseCases.
     val loginStudentUseCase: LoginStudentUseCase by lazy {
