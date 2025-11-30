@@ -5,7 +5,8 @@ import java.util.Date
 data class Course(
     val id: Int,
     val name: String,
-    val subject: String,
+    val category: String,
+    val description: String?,
     val startDate: Date,
     val finishDate: Date,
     val price: Double,

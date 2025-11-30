@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 data class CourseDTO(
     val id: Int,
     val name: String,
-    val subject: String,
+    val category: String,
+    val description: String?,
     val start_date: String,
     val finish_date: String,
     val price: Double,

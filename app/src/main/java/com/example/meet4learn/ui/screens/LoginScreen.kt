@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.meet4learn.R
+import com.example.meet4learn.ui.theme.*
 
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel) {

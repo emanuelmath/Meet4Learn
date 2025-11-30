@@ -14,7 +14,8 @@ fun CourseDTO.toModel(): Course {
     return Course(
         id = id,
         name = name,
-        subject = subject,
+        category = category,
+        description = description,
         startDate = formatter.parse(start_date)!!,
         finishDate = formatter.parse(start_date)!!,
         price = price,
@@ -27,7 +28,8 @@ fun Course.toDTO(): CourseDTO {
     return CourseDTO(
         id = id,
         name = name,
-        subject = subject,
+        category = category,
+        description = description,
         start_date = startDate.toString(),
         finish_date = finishDate.toString(),
         price = price,

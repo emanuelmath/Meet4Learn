@@ -5,5 +5,6 @@ import com.example.meet4learn.domain.models.Course
 data class DashboardUiState(
     val isLoading: Boolean = true,
     val courses: List<Course> = emptyList(),
+    val teacherNames: Map<String, String> = emptyMap(),
     val errorMessage: String? = null
 )

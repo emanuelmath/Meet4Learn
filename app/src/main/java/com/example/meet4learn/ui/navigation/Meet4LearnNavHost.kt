@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import com.example.meet4learn.di.AppContainer
 import com.example.meet4learn.ui.screens.DashboardScreen
 import com.example.meet4learn.ui.screens.LoginScreen
+import com.example.meet4learn.ui.screens.MainScreen
 import com.example.meet4learn.ui.screens.RegisterScreen
 import com.example.meet4learn.ui.screens.SplashScreen
 import com.example.meet4learn.ui.viewmodels.DashboardViewModel
@@ -37,11 +38,11 @@ fun Meet4LearnNavHost(navHostController: NavHostController,
             )
             RegisterScreen(navHostController, registerViewModel)
         }
-        composable(Screen.Dashboard.route) {
-            val dashboardViewModel: DashboardViewModel = viewModel(
-                factory = DashboardViewModelFactory(appContainer.authRepository, appContainer.courseRepository)
+        composable(Screen.Main.route) {
+            MainScreen(
+                navController = navHostController,
+                appContainer = appContainer
             )
-            DashboardScreen(navHostController, dashboardViewModel)
         }
         composable(Screen.Splash.route) {
             val splashViewModel: SplashViewModel = viewModel(

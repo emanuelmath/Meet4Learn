@@ -48,4 +48,8 @@ class RegisterViewModel(private val registerStudentUseCase: RegisterStudentUseCa
         )
     }
 
+    fun resetState() {
+        uiState = RegisterUiState()
+    }
+
 }

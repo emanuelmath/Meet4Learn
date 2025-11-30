@@ -27,6 +27,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.shadow
@@ -38,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.example.meet4learn.R
 import com.example.meet4learn.ui.navigation.Screen
+import com.example.meet4learn.ui.theme.*
 import com.example.meet4learn.ui.viewmodels.RegisterViewModel
 
 
@@ -56,7 +58,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
             navController.navigate(Screen.Login.route) {
                 popUpTo(Screen.Register.route) { inclusive = true }
             }
-            //registerViewModel.resetState()
+            registerViewModel.resetState()
         }
     }
 
@@ -66,21 +68,22 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(horizontal = 32.dp),
+            .padding(horizontal = 32.dp)
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
 
 
         Image(
-            painter = painterResource(R.drawable.logoprincipal),
+            painter = painterResource(R.drawable.logomeet4learnhd),
             contentDescription = "Logo de Meet4Learn",
             modifier = Modifier
                 .padding(top = 32.dp)
-                .size(260.dp)
+                .size(250.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.size(8.dp))
 
         Text(
             text = "Conectamos conocimiento, tecnología y personas.\n¡Tu aprendizaje comienza ahora!",
@@ -89,7 +92,7 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.size(20.dp))
 
         OutlinedTextField(
             value = fullName,
@@ -162,7 +165,9 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
         Spacer(modifier = Modifier.height(28.dp))
 
         Button(
-            onClick = { },
+            onClick = {
+                registerViewModel.register(email, password, fullName)
+            },
             shape = RoundedCornerShape(8.dp),
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = GreenButton),
@@ -181,16 +186,19 @@ fun RegisterScreen(navController: NavController, registerViewModel: RegisterView
                 fontWeight = FontWeight.Bold
             )
         }
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.size(10.dp))
         Button(
-            onClick = { /* acción volver */ },
+            onClick = { navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Register.route) { inclusive = true }
+            } },
             colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .align(Alignment.Start)
-                .padding(bottom = 16.dp)
+            shape = RoundedCornerShape(8.dp)
         ) {
             Text(text = "Volver", color = Color.White)
+        }
+
+        if(uiState.errorMessage != null) {
+            Text(uiState.errorMessage, color = Color.Red)
         }
     }
 }

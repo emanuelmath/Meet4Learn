@@ -28,7 +28,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
@@ -41,149 +43,71 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.meet4learn.ui.theme.*
 
 @Composable
-fun DashboardScreen(navController: NavController, dashboardViewModel: DashboardViewModel) {
-
+fun DashboardScreen(
+    navController: NavController,
+    dashboardViewModel: DashboardViewModel
+) {
     val uiState = dashboardViewModel.uiState
 
-    /*LaunchedEffect(Unit) {
-        dashboardViewModel.getAllCourses()
-    } Ya no por el init*/
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 50.dp)) {
-        Text("Dashboard no oficial.")
-        Text("C# > Kotlin ^ Java.")
-        Spacer(modifier = Modifier.size(25.dp))
-        Button(onClick = {
-            dashboardViewModel.logOut()
-            navController.navigate(Screen.Login.route) {
-                popUpTo(Screen.Dashboard.route) { inclusive = true }
-            }
-        }) { Text("Cerrar Sesión") }
-
-
-        LazyColumn {
-          items(uiState.courses) { course ->
-              Row(verticalAlignment = Alignment.CenterVertically) {
-                  Text(course.name)
-                  Spacer(modifier = Modifier.size(1.dp))
-                  Text(course.status)
-                  Spacer(modifier = Modifier.size(1.dp))
-                  Text(course.price.toString())
-              }
-        }
-        }
-    }
-}
-
-
-val BluePrimary = Color(0xFF001E3C)
-val BlueCard = Color(0xFF5A9DFF)
-val GreenButton = Color(0xFF4CAF50)
-val TextColorDark = Color(0xFF000000)
-val TextColorLight = Color(0xFFFFFFFF)
-
-
-data class Course(
-    val title: String,
-    val price: String,
-    val docentName: String,
-    val docentImage: Int
-)
-
-
-val sampleCourses = listOf(
-    Course("Álgebra Básica", "$ 0.00", "Rodrigo Contreras", 0), // Placeholder simple
-    Course("Introducción a la Cocina", "$ 25.00", "Ana Gómez", 0),
-    Course("Marketing", "$ 50.00", "Carlos Perez", 0)
-)
-
-@Composable
-fun DashboardScreen2() {
-    Scaffold(
-        topBar = { AppTopBar() },
-        bottomBar = { AppBottomBar() },
-        content = { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .background(Color.White)
-            ) {
-
-                Text(
-                    text = "Cursos Disponibles",
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        fontSize = 28.sp,
-                        color = TextColorDark
-                    ),
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                )
-
-
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(sampleCourses) { course ->
-                        CourseCard(course = course)
-                    }
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun AppTopBar() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .background(BluePrimary)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(painterResource(R.drawable.logoprincipal), contentDescription = null)
-        }
-    }
-}
-
-@Composable
-fun AppBottomBar() {
-    NavigationBar(
-        containerColor = BluePrimary,
-        contentColor = TextColorLight,
-        modifier = Modifier.height(64.dp)
-    ) {
-        BottomNavItem(icon = Icons.Default.Home, label = "Home", isSelected = true)
-        BottomNavItem(icon = Icons.Default.Star, label = "Mis Cursos")
-        BottomNavItem(icon = Icons.Default.DateRange, label = "Calendario")
-        BottomNavItem(icon = Icons.Default.Person, label = "Perfil")
-    }
-}
-
-@Composable
-fun RowScope.BottomNavItem(icon: ImageVector, label: String, isSelected: Boolean = false) {
-    val contentColor = if (isSelected) Color(0xFF5A9DFF) else TextColorLight
-
-    NavigationBarItem(
-        icon = { Icon(icon, contentDescription = label, tint = contentColor) },
-        label = { Text(label, color = contentColor, fontSize = 10.sp) },
-        selected = isSelected,
-        onClick = {  },
-        colors = NavigationBarItemDefaults.colors(
-            indicatorColor = BluePrimary
+    // Mapeo de datos (ViewModel -> UI)
+    val uiCourses = uiState.courses.map { course ->
+        Course(
+            title = course.name,
+            price = "$ ${course.price}",
+            docentName = uiState.teacherNames[course.teacherId] ?: "Desconocido"
         )
-    )
+    }
+
+    // SOLO COLUMN (El Scaffold ya estará en la pantalla padre)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+
+        Text(
+            text = "Cursos Disponibles",
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp,
+                color = TextColorDark
+            ),
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+        )
+
+        // Loading
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = BluePrimary)
+            }
+        }
+
+        // Error
+        if (uiState.errorMessage != null) {
+            Text(
+                text = uiState.errorMessage!!,
+                color = Color.Red,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
+        // Lista
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(uiCourses) { course ->
+                CourseCard(course = course)
+            }
+        }
+    }
 }
 
+// --- Data Class y Componente de Tarjeta ---
+// (Asegúrate de tener CourseCard y data class Course aquí o en sus propios archivos)
 @Composable
 fun CourseCard(course: Course) {
     Card(
@@ -225,9 +149,7 @@ fun CourseCard(course: Course) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Precio: ${course.price}",
                         color = TextColorDark,
@@ -240,12 +162,10 @@ fun CourseCard(course: Course) {
                     )
                 }
 
-
                 Column(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.weight(1f)
                 ) {
-
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
@@ -253,10 +173,9 @@ fun CourseCard(course: Course) {
                             .padding(4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-
                         Image(
-                            painter = painterResource(id = R.drawable.libro_abierto), // Imagen de placeholder
-                            contentDescription = "Docente: ${course.docentName}",
+                            painter = painterResource(id = R.drawable.libro_abierto),
+                            contentDescription = null,
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(RoundedCornerShape(8.dp))
@@ -274,15 +193,12 @@ fun CourseCard(course: Course) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-
                     Button(
-                        onClick = {},
+                        onClick = {}, // Acción pendiente
                         colors = ButtonDefaults.buttonColors(containerColor = GreenButton),
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        modifier = Modifier
-                            .height(30.dp)
-
+                        modifier = Modifier.height(30.dp)
                     ) {
                         Text(
                             text = "VER DETALLES",
@@ -297,11 +213,17 @@ fun CourseCard(course: Course) {
     }
 }
 
+data class Course(
+    val title: String,
+    val price: String,
+    val docentName: String,
+    val docentImage: Int = R.drawable.libro_abierto
+)
 
 @Preview(showBackground = true)
 @Composable
 fun DashboardScreenPreview() {
     MaterialTheme {
-        DashboardScreen2()
+        //DashboardScreen2()
     }
 }

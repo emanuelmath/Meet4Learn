@@ -8,10 +8,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.meet4learn.data.mappers.toModel
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.domain.repositories.CourseRepository
+import com.example.meet4learn.domain.repositories.ProfileRepository
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class DashboardViewModel(private val authRepository: AuthRepository, private val courseRepository: CourseRepository): ViewModel() {
+class DashboardViewModel(private val authRepository: AuthRepository,
+                         private val courseRepository: CourseRepository,
+                         private val profileRepository: ProfileRepository): ViewModel() {
 
     var uiState by mutableStateOf(DashboardUiState())
     private set
@@ -43,6 +46,20 @@ class DashboardViewModel(private val authRepository: AuthRepository, private val
                         courses = listaCursos,
                         errorMessage = null
                     )
+                    val teacherIds = listaCursos.map { it.teacherId }.distinct()
+
+                    val teacherMap = mutableMapOf<String, String>()
+
+                    for (id in teacherIds) {
+                        val name = profileRepository.getTeacherName(id).getOrThrow()
+                        teacherMap[id] = name
+                    }
+
+                    uiState = uiState.copy(
+                        teacherNames = teacherMap
+                    )
+
+
                 }
         }
     }

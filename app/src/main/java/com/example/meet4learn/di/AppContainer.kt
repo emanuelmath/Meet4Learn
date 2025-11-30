@@ -7,6 +7,7 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.storage.Storage
+import io.github.jan.supabase.functions.Functions
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.data.repositories.AuthRepositoryImpl
 import com.example.meet4learn.data.repositories.CourseRepositoryImpl
@@ -30,6 +31,7 @@ class AppContainer (context: Context) {
         install(Postgrest)
         install(Realtime)
         install(Storage)
+        install(Functions)
     }
 
     // Repositorios.
