@@ -7,13 +7,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,8 +20,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import com.example.meet4learn.R
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -41,6 +35,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+
 
 @Composable
 fun DashboardScreen(navController: NavController, dashboardViewModel: DashboardViewModel) {
@@ -162,27 +161,44 @@ fun AppBottomBar() {
         contentColor = TextColorLight,
         modifier = Modifier.height(64.dp)
     ) {
-        BottomNavItem(icon = Icons.Default.Home, label = "Home", isSelected = true)
-        BottomNavItem(icon = Icons.Default.Star, label = "Mis Cursos")
-        BottomNavItem(icon = Icons.Default.DateRange, label = "Calendario")
-        BottomNavItem(icon = Icons.Default.Person, label = "Perfil")
+        BottomNavItem(icon = Icons.Default.Home, label = "Home", )
+        BottomNavItem(icon = Icons.Default.Star, label = "Mis Cursos", )
+        BottomNavItem(icon = Icons.Default.DateRange, label = "Calendario", )
+        BottomNavItem(icon = Icons.Default.Person, label = "Perfil",)
     }
 }
 
 @Composable
-fun RowScope.BottomNavItem(icon: ImageVector, label: String, isSelected: Boolean = false) {
+fun RowScope.BottomNavItem(
+    icon: ImageVector,
+    label: String,
+    isSelected: Boolean = false
+) {
     val contentColor = if (isSelected) Color(0xFF5A9DFF) else TextColorLight
 
     NavigationBarItem(
-        icon = { Icon(icon, contentDescription = label, tint = contentColor) },
-        label = { Text(label, color = contentColor, fontSize = 10.sp) },
         selected = isSelected,
-        onClick = {  },
+        onClick = { },
+        icon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = contentColor
+            )
+        },
+        label = {
+            Text(
+                text = label,
+                color = contentColor,
+                fontSize = 10.sp
+            )
+        },
         colors = NavigationBarItemDefaults.colors(
             indicatorColor = BluePrimary
         )
     )
 }
+
 
 @Composable
 fun CourseCard(course: Course) {
@@ -255,7 +271,7 @@ fun CourseCard(course: Course) {
                     ) {
 
                         Image(
-                            painter = painterResource(id = R.drawable.libro_abierto), // Imagen de placeholder
+                            painter = painterResource(id = R.drawable.libro_abierto),
                             contentDescription = "Docente: ${course.docentName}",
                             modifier = Modifier
                                 .size(32.dp)
