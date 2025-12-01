@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.meet4learn.R
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.meet4learn.ui.theme.BluePrimary
 
 @Composable
 fun UsuarioScreen() {
@@ -289,7 +290,7 @@ fun UsuarioScreen() {
                     }
                 }
             }
-        AppBottomBar()
+
 
     }
 }

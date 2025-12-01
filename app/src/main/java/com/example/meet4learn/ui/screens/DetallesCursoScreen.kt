@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.meet4learn.ui.theme.BluePrimary
 
 @Composable
 fun DetallesCursoScreen(onBack: () -> Unit = {}) {
