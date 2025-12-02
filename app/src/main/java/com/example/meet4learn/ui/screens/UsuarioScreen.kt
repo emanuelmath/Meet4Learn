@@ -20,8 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.meet4learn.R
 import androidx.compose.ui.tooling.preview.Preview
+<<<<<<< HEAD
 import com.example.meet4learn.ui.theme.*
 import com.example.meet4learn.ui.viewmodels.StudentProfileViewModel
+=======
+import com.example.meet4learn.ui.theme.BluePrimary
+>>>>>>> 8482284092a380512b31e4c2f886428606f9150a
 
 @Composable
 fun UsuarioScreen(studentProfileViewModel: StudentProfileViewModel) {
@@ -273,7 +277,11 @@ fun UsuarioScreen(studentProfileViewModel: StudentProfileViewModel) {
                     }
                 }
             }
+<<<<<<< HEAD
         //AppBottomBar()
+=======
+
+>>>>>>> 8482284092a380512b31e4c2f886428606f9150a
 
     }
 }

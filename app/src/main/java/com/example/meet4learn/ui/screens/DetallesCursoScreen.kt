@@ -30,6 +30,7 @@ import com.example.meet4learn.ui.theme.*
 import com.example.meet4learn.ui.utils.CourseUI
 import com.example.meet4learn.ui.viewmodels.CourseDetailsViewModel
 
+
 @Composable
 fun DetallesCursoScreen(
     courseId: Int,

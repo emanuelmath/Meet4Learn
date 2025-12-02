@@ -22,8 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.meet4learn.R
 import androidx.compose.ui.tooling.preview.Preview
+<<<<<<< HEAD:app/src/main/java/com/example/meet4learn/ui/screens/MyCoursesScreen.kt
 import com.example.meet4learn.ui.theme.*
 import com.example.meet4learn.ui.viewmodels.MyCoursesViewModel
+=======
+import com.example.meet4learn.ui.theme.BluePrimary
+import com.example.meet4learn.ui.theme.TextColorDark
+>>>>>>> 8482284092a380512b31e4c2f886428606f9150a:app/src/main/java/com/example/meet4learn/ui/screens/MiscursosScreen.kt
 
 @Composable
 fun MyCoursesScreen(
@@ -108,7 +113,10 @@ fun MyCoursesScreen(
             }
         }
 
+<<<<<<< HEAD:app/src/main/java/com/example/meet4learn/ui/screens/MyCoursesScreen.kt
         //AppBottomBar() Spacer(modifier = Modifier.height(16.dp))
+=======
+>>>>>>> 8482284092a380512b31e4c2f886428606f9150a:app/src/main/java/com/example/meet4learn/ui/screens/MiscursosScreen.kt
 
 
     }
