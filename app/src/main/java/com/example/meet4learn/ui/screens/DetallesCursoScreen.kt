@@ -50,12 +50,8 @@ fun DetallesCursoScreen(
     }
 
     if (uiState.errorMessage != null) {
-//        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//            Text(text = uiState.errorMessage, color = Color.Red)
-//            Button(onClick = {navController.navigate(Screen.Main.route)}) { Text("Volver") }
-//        }
-//        return
-        Toast.makeText(LocalContext.current, uiState.errorMessage, Toast.LENGTH_LONG).show()
+        Toast.makeText(LocalContext.current,
+            uiState.errorMessage, Toast.LENGTH_LONG).show()
     }
 
     val course = uiState.course
