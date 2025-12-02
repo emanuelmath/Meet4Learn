@@ -10,6 +10,7 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.Flow
 import com.example.meet4learn.ui.viewmodels.*
 import io.github.jan.supabase.annotations.SupabaseExperimental
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.flow.map
 
 @OptIn(SupabaseExperimental::class)
@@ -24,5 +25,12 @@ class CourseRepositoryImpl( val supabaseClient: SupabaseClient ) : CourseReposit
                     .map { it.toModel() }
                     .filter { it.status == "activo" }
             }
+    }
+
+    override suspend fun getCourseById(id: Int): Course? {
+        return supabaseClient.from("course")
+            .select(columns = Columns.ALL) {
+            filter { eq("id", id) }
+        }.decodeSingle<CourseDTO>().toModel()
     }
 }

@@ -1,4 +1,4 @@
-package com.example.meet4learn.ui.utils
+package com.example.meet4learn.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,7 +39,7 @@ fun Meet4LearnTopBar() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(R.drawable.logoprincipal),
+                    painter = painterResource(R.drawable.logomeet4learnhd),
                     contentDescription = "Logo",
                     modifier = Modifier.height(40.dp)
                 )

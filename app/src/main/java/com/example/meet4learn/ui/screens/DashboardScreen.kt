@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.meet4learn.ui.theme.*
+import com.example.meet4learn.ui.utils.CourseUI
 
 @Composable
 fun DashboardScreen(
@@ -38,61 +39,60 @@ fun DashboardScreen(
 ) {
     val uiState = dashboardViewModel.uiState
 
-
     val uiCourses = uiState.courses.map { course ->
-        Course(
-            title = course.name,
+        CourseUI(
+            id = course.id,
+            name = course.name,
             price = "$ ${course.price}",
             docentName = uiState.teacherNames[course.teacherId] ?: "Desconocido"
         )
     }
-    
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+            ) {
 
-            Text(
-                text = "Cursos Disponibles",
-                style = MaterialTheme.typography.headlineLarge.copy(
+                Text(
+                    text = "Cursos Disponibles",
                     fontWeight = FontWeight.Bold,
                     fontSize = 28.sp,
-                    color = TextColorDark
-                ),
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-            )
-            
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = BluePrimary)
-                }
-            }
-            
-            if (uiState.errorMessage != null) {
-                Text(
-                    text = uiState.errorMessage,
-                    color = Color.Red,
-                    modifier = Modifier.padding(16.dp)
+                    color = TextColorDark,
+                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
                 )
-            }
-            
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(uiCourses) { course ->
-                    CourseCard(course = course)
+
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = BluePrimary)
+                    }
+                }
+
+                if (uiState.errorMessage != null) {
+                    Text(
+                        text = uiState.errorMessage,
+                        color = Color.Red,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(uiCourses) { course ->
+                        CourseCard(course = course, onDetailClick = {
+                            navController.navigate(Screen.CourseDetails.courseSelected(course.id))
+                        })
+                    }
                 }
             }
-        }
-    }
+}
 
-    @Composable
-    fun CourseCard(course: Course) {
+@Composable
+    fun CourseCard(course: CourseUI, onDetailClick: () -> Unit) {
         Card(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
@@ -119,7 +119,7 @@ fun DashboardScreen(
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = course.title,
+                    text = course.name,
                     color = TextColorDark,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -177,7 +177,7 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Button(
-                            onClick = {}, 
+                            onClick = onDetailClick,
                             colors = ButtonDefaults.buttonColors(containerColor = GreenButton),
                             shape = RoundedCornerShape(12.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
@@ -197,12 +197,7 @@ fun DashboardScreen(
     }
 
 
-data class Course(
-    val title: String,
-    val price: String,
-    val docentName: String,
-    val docentImage: Int = R.drawable.libro_abierto
-)
+
 
 @Preview(showBackground = true)
 @Composable

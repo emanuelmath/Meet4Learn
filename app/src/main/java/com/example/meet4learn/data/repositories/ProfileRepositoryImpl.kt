@@ -44,4 +44,22 @@ class ProfileRepositoryImpl( val supabaseClient: SupabaseClient) : ProfileReposi
         }
     }
 
+    override suspend fun getStudentBalance(studentId: String): Result<Double> {
+        return try {
+            val resultDTO = supabaseClient.from("profile").select {
+                filter {
+                    eq("id", studentId)
+                }
+            }.decodeSingle<ProfileDTO>()
+
+            val resultModel = resultDTO.toModel()
+
+            Result.success(resultModel.balance)
+        } catch(e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+
 }

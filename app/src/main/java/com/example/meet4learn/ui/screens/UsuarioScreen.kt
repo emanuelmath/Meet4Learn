@@ -20,9 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.meet4learn.R
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.meet4learn.ui.theme.*
+import com.example.meet4learn.ui.viewmodels.StudentProfileViewModel
 
 @Composable
-fun UsuarioScreen() {
+fun UsuarioScreen(studentProfileViewModel: StudentProfileViewModel) {
 
     Column(
         modifier = Modifier
@@ -30,24 +32,6 @@ fun UsuarioScreen() {
             .background(Color.White)
 
     ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(BluePrimary)
-                    .padding(vertical = 12.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logoprincipal),
-                    contentDescription = "Logo",
-                    modifier = Modifier
-                        .height(40.dp)
-                        .padding(start = 16.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Column(
                 modifier = Modifier
@@ -289,7 +273,7 @@ fun UsuarioScreen() {
                     }
                 }
             }
-        AppBottomBar()
+        //AppBottomBar()
 
     }
 }
@@ -299,7 +283,7 @@ fun UsuarioScreen() {
 @Composable
 fun UsuarioScreenPreview() {
     MaterialTheme {
-        UsuarioScreen()
+        //UsuarioScreen()
     }
 }
 

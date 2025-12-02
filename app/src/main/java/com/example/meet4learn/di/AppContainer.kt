@@ -11,8 +11,12 @@ import io.github.jan.supabase.functions.Functions
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.data.repositories.AuthRepositoryImpl
 import com.example.meet4learn.data.repositories.CourseRepositoryImpl
+import com.example.meet4learn.data.repositories.EnrollmentRepositoryImpl
+import com.example.meet4learn.data.repositories.ModuleRepositoryImpl
 import com.example.meet4learn.data.repositories.ProfileRepositoryImpl
 import com.example.meet4learn.domain.repositories.CourseRepository
+import com.example.meet4learn.domain.repositories.EnrollmentRepository
+import com.example.meet4learn.domain.repositories.ModuleRepository
 import com.example.meet4learn.domain.repositories.ProfileRepository
 import com.example.meet4learn.domain.usecase.LoginStudentUseCase
 import com.example.meet4learn.domain.usecase.RegisterStudentUseCase
@@ -43,6 +47,12 @@ class AppContainer (context: Context) {
     }
     val courseRepository: CourseRepository by lazy {
         CourseRepositoryImpl(supabaseClient)
+    }
+    val enrollmentRepository: EnrollmentRepository by lazy {
+        EnrollmentRepositoryImpl(supabaseClient)
+    }
+    val moduleRepository: ModuleRepository by lazy {
+        ModuleRepositoryImpl(supabaseClient)
     }
     //UseCases.
     val loginStudentUseCase: LoginStudentUseCase by lazy {

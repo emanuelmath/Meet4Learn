@@ -1,5 +1,6 @@
 package com.example.meet4learn.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,62 +16,72 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.text.font.FontWeight
 import com.example.meet4learn.R
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import com.example.meet4learn.domain.models.Module
+import com.example.meet4learn.ui.navigation.Screen
+import com.example.meet4learn.ui.theme.*
+import com.example.meet4learn.ui.utils.CourseUI
+import com.example.meet4learn.ui.viewmodels.CourseDetailsViewModel
 
 @Composable
-fun DetallesCursoScreen(onBack: () -> Unit = {}) {
+fun DetallesCursoScreen(
+    courseId: Int,
+    viewModel: CourseDetailsViewModel,
+    navController: NavController
+) {
+    LaunchedEffect(courseId) {
+        viewModel.loadCourseDetails(courseId)
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+    val uiState = viewModel.uiState
 
-    ) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(BluePrimary)
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logoprincipal),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .height(40.dp)
-                    .padding(start = 16.dp),
-                contentScale = ContentScale.Fit
-            )
+    if (uiState.isLoading) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = BluePrimary)
         }
-        Spacer(modifier = Modifier.height(12.dp))
+        return
+    }
 
+    if (uiState.errorMessage != null) {
+//        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//            Text(text = uiState.errorMessage, color = Color.Red)
+//            Button(onClick = {navController.navigate(Screen.Main.route)}) { Text("Volver") }
+//        }
+//        return
+        Toast.makeText(LocalContext.current, uiState.errorMessage, Toast.LENGTH_LONG).show()
+    }
+
+    val course = uiState.course
+
+    if (course != null) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .background(Color.White)
                 .padding(16.dp)
-                .weight(1f)
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF9FD5FF)
-                ),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF9FD5FF)),
                 elevation = CardDefaults.cardElevation(6.dp)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
-                        text = "INTRODUCCIÓN A LA COCINA",
+                        text = course.name.uppercase(),
                         fontWeight = FontWeight.Black,
                         fontSize = 18.sp,
                         color = Color(0xFF0D1B2A)
                     )
                     Text(
-                        text = "DOCENTE: ANA GÓMEZ",
+                        text = "DOCENTE: ${course.docentName.uppercase()}",
                         fontSize = 14.sp,
                         color = Color(0xFF0D1B2A)
                     )
@@ -82,109 +93,67 @@ fun DetallesCursoScreen(onBack: () -> Unit = {}) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF1E56A0)
-                ),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E56A0)),
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = "CLASE PROGRAMADA:",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(text = "PRECIO:", color = Color.White, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(4.dp))
-
                     Text(
-                        text = "LUNES 10 / NOV",
+                        text = course.price,
                         color = Color.White,
                         fontWeight = FontWeight.Black,
                         fontSize = 16.sp
                     )
-
                     Spacer(modifier = Modifier.height(12.dp))
 
-                }
-
-
-                Button(
-                    onClick = {  },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF0A2C52)
-                    ),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Call,
-                        contentDescription = "Unirse",
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("UNIRSE", color = Color.White)
+                    Button(
+                        onClick = { viewModel.enrollInCourse() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A2C52)),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.align(Alignment.End),
+                        enabled = !uiState.isEnrolled
+                    ) {
+                        Icon(Icons.Default.Call, contentDescription = null, tint = Color.White)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(if (uiState.isEnrolled) "INSCRITO" else "UNIRSE", color = Color.White)
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF7DB9FF)
-                ),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF7DB9FF)),
                 elevation = CardDefaults.cardElevation(6.dp)
             ) {
-
                 Column(modifier = Modifier.padding(20.dp)) {
-
-                    Text(
-                        text = "MODULOS",
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF0D1B2A)
-                    )
-
+                    Text(text = "MÓDULOS", fontWeight = FontWeight.Black, color = Color(0xFF0D1B2A))
                     Spacer(modifier = Modifier.height(12.dp))
-
-                    ModuleItem("Fundamentos del Arte Culinario")
-                    ModuleItem("Ingredientes y Sabores del Mundo")
-                    ModuleItem("Preparaciones Básicas")
+                    if(uiState.modules == emptyList<Module>()){
+                        Text("Aún no hay módulos en este curso.")
+                    } else {
+                        LazyColumn {
+                            items(uiState.modules) { module ->
+                                ModuleItem(module.title)
+                            }
+                        }
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
-
             Button(
-                onClick = onBack,
+                onClick = { navController.navigate(Screen.Main.route) },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .width(180.dp)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1E56A0)
-                ),
-                shape = RoundedCornerShape(12.dp),
-                elevation = ButtonDefaults.buttonElevation(8.dp)
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E56A0))
             ) {
-
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = Color.White
-                )
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = "VOLVER",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("VOLVER")
             }
         }
     }
@@ -216,6 +185,6 @@ fun ModuleItem(texto: String) {
 @Composable
 fun DetallesCursoScreenPreview() {
     MaterialTheme {
-        DetallesCursoScreen()
+        //DetallesCursoScreen()
     }
 }

@@ -1,4 +1,4 @@
-package com.example.meet4learn.ui.utils
+package com.example.meet4learn.ui.components
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
@@ -47,20 +47,20 @@ fun Meet4LearnBottomBar(navController: NavController) {
         BottomNavItem(
             icon = Icons.Default.Star,
             label = "Mis Cursos",
-            isSelected = currentRoute == "courses_internal",
-            onClick = { navController.navigate("courses_internal") }
+            isSelected = currentRoute == Screen.MyCourses.route,
+            onClick = { navController.navigate(Screen.MyCourses.route) }
         )
         BottomNavItem(
             icon = Icons.Default.DateRange,
             label = "Calendario",
-            isSelected = currentRoute == "calendar_internal",
-            onClick = { navController.navigate("calendar_internal") }
+            isSelected = currentRoute == Screen.Calendar.route,
+            onClick = { navController.navigate(Screen.Calendar.route) }
         )
         BottomNavItem(
             icon = Icons.Default.Person,
             label = "Perfil",
-            isSelected = currentRoute == "profile_internal",
-            onClick = { navController.navigate("profile_internal") }
+            isSelected = currentRoute == Screen.Profile.route,
+            onClick = { navController.navigate(Screen.Profile.route) }
         )
     }
 }
