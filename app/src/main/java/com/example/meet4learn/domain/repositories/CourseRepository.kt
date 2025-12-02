@@ -7,5 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface CourseRepository {
     fun getAllCoursesRealtime(): Flow<List<Course>>
     suspend fun getCourseById(id: Int): Course?
+    suspend fun getCoursesByIds(courseIds: List<Int>): List<Course>
     // suspend fun getMyCourses(id: String) No -> Es para enrollments
 }

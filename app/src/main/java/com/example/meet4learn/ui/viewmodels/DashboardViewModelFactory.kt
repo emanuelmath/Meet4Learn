@@ -4,19 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.domain.repositories.CourseRepository
+import com.example.meet4learn.domain.repositories.EnrollmentRepository
 import com.example.meet4learn.domain.repositories.ProfileRepository
 import com.example.meet4learn.domain.usecase.LoginStudentUseCase
 
 class DashboardViewModelFactory (
     private val authRepository: AuthRepository,
     private val courseRepository: CourseRepository,
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    private val enrollmentRepository: EnrollmentRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DashboardViewModel::class.java)) {
-            return DashboardViewModel(authRepository, courseRepository, profileRepository) as T
+            return DashboardViewModel(authRepository, courseRepository, profileRepository, enrollmentRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

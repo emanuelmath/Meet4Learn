@@ -1,5 +1,7 @@
 package com.example.meet4learn.ui.screens
 
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,11 +21,47 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.meet4learn.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import com.example.meet4learn.ui.navigation.Screen
 import com.example.meet4learn.ui.theme.BluePrimary
+import com.example.meet4learn.ui.viewmodels.CourseDescriptionViewModel
+import com.example.meet4learn.ui.viewmodels.CourseDetailsViewModel
 
 @Composable
-fun DescripcionCursosScreen(onBack: () -> Unit = {}, onInscribirme: () -> Unit = {}) {
+fun DescripcionCursosScreen(
+    courseId: Int,
+    courseDescriptionViewModel: CourseDescriptionViewModel,
+    navController: NavController
+) {
+    BackHandler(enabled = true) {}
+
+    LaunchedEffect(courseId) {
+        courseDescriptionViewModel.loadCourseDetails(courseId)
+    }
+
+    val uiState = courseDescriptionViewModel.uiState
+
+
+    if (uiState.errorMessage != null) {
+        Toast.makeText(LocalContext.current,
+            uiState.errorMessage, Toast.LENGTH_LONG).show()
+    }
+
+    if (uiState.successMessage != null) {
+        Toast.makeText(LocalContext.current,
+            uiState.successMessage, Toast.LENGTH_LONG).show()
+    }
+
+    if (uiState.isLoading) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = BluePrimary)
+        }
+        return
+    }
+
+    val course = uiState.course ?: return
 
     Column(
         modifier = Modifier
@@ -32,113 +70,42 @@ fun DescripcionCursosScreen(onBack: () -> Unit = {}, onInscribirme: () -> Unit =
     ) {
 
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(BluePrimary)
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.logoprincipal),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .height(40.dp)
-                    .padding(start = 16.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-
         Column(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
+                .padding(top = 15.dp)
         ) {
-
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = Color(0xFF1E40AF),
                 shadowElevation = 12.dp
             ) {
+                Column(modifier = Modifier.padding(20.dp)) {
 
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
-
-
-                    Text(
-                        "NOMBRE DEL CURSO:",
-                        color = Color.White,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 16.sp
-                    )
-
+                    Text("NOMBRE DEL CURSO:", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(6.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF60A5FA), RoundedCornerShape(10.dp))
-                            .padding(14.dp)
-                    ) {
-                        Text(
-                            "INTRODUCCIÓN A LA COCINA",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
+                    Box(Modifier.fillMaxWidth().background(Color(0xFF60A5FA), RoundedCornerShape(10.dp)).padding(14.dp)) {
+                        Text(course.name.uppercase(), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
 
                     Spacer(modifier = Modifier.height(18.dp))
 
-
-                    Text(
-                        "DOCENTE:",
-                        color = Color.White,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 16.sp
-                    )
-
+                    Text("DOCENTE:", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(6.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF93C5FD), RoundedCornerShape(10.dp))
-                            .padding(14.dp)
-                    ) {
-                        Text(
-                            "ANA GÓMEZ",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
+                    Box(Modifier.fillMaxWidth().background(Color(0xFF93C5FD), RoundedCornerShape(10.dp)).padding(14.dp)) {
+                        Text(course.docentName.uppercase(), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFF0F172A), RoundedCornerShape(12.dp))
-                            .padding(16.dp)
-                    ) {
+                    Box(Modifier.fillMaxWidth().background(Color(0xFF0F172A), RoundedCornerShape(12.dp)).padding(16.dp)) {
                         Column {
-                            Text(
-                                "DESCRIPCIÓN:",
-                                color = Color.White,
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 16.sp
-                            )
-
+                            Text("DESCRIPCIÓN:", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
                             Spacer(modifier = Modifier.height(6.dp))
-
                             Text(
-                                "Curso introductorio de cocina orientado a desarrollar competencias básicas en manipulación de alimentos, técnicas de corte y preparación de platos sencillos.",
+                                text = course.description.ifEmpty { "Sin descripción disponible." },
                                 color = Color.White,
                                 fontSize = 14.sp
                             )
@@ -147,118 +114,46 @@ fun DescripcionCursosScreen(onBack: () -> Unit = {}, onInscribirme: () -> Unit =
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "HORARIO:",
-                            color = Color.White,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 16.sp
-                        )
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Text(
-                            "1:00pm - 5:00pm",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "PRECIO:",
-                            color = Color.White,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 16.sp
-                        )
-
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("PRECIO:", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.width(20.dp))
-
-                        Box(
-                            modifier = Modifier
-                                .background(Color(0xFFFFE4E6), RoundedCornerShape(10.dp))
-                                .padding(horizontal = 22.dp, vertical = 10.dp)
-                        ) {
+                        Box(Modifier.background(Color(0xFFFFE4E6), RoundedCornerShape(10.dp)).padding(horizontal = 22.dp, vertical = 10.dp)) {
                             Text(
-                                "$ 25.00",
+                                text = course.price,
                                 color = Color.Black,
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 20.sp
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
-
-            Spacer(modifier = Modifier.height(28.dp))
-            
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                Button(
-                    onClick = onBack,
-                    colors = ButtonDefaults.buttonColors(Color(0xFF1E3A8A)),
-                    shape = RoundedCornerShape(10.dp),
-                    elevation = ButtonDefaults.buttonElevation(8.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        "VOLVER",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = onInscribirme,
-                    colors = ButtonDefaults.buttonColors(Color(0xFF22C55E)),
-                    shape = RoundedCornerShape(10.dp),
-                    elevation = ButtonDefaults.buttonElevation(8.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
-                ) {
-                    Text(
-                        "INSCRIBIRME",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(26.dp))
         }
-    }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun DescripcionCursosScreenPreview() {
-    MaterialTheme {
-        DescripcionCursosScreen()
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Button(
+                onClick = { navController.popBackStack() },
+                colors = ButtonDefaults.buttonColors(Color(0xFF1E3A8A)),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.weight(1f).height(50.dp)
+            ) {
+                Icon(Icons.Default.ArrowBack, null, tint = Color.White)
+                Text(" VOLVER", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+
+            Button(
+                onClick = { courseDescriptionViewModel.enrollInCourse() },
+                colors = ButtonDefaults.buttonColors(if (uiState.isEnrolled) Color.Gray else Color(0xFF22C55E)),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.weight(1f).height(50.dp),
+                enabled = !uiState.isEnrolled
+            ) {
+                Text(if (uiState.isEnrolled) "YA INSCRITO" else "INSCRIBIRSE", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }

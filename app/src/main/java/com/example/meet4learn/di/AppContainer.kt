@@ -10,14 +10,20 @@ import io.github.jan.supabase.storage.Storage
 import io.github.jan.supabase.functions.Functions
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.data.repositories.AuthRepositoryImpl
+import com.example.meet4learn.data.repositories.CallRepositoryImpl
+import com.example.meet4learn.data.repositories.ChatMessageRepositoryImpl
 import com.example.meet4learn.data.repositories.CourseRepositoryImpl
 import com.example.meet4learn.data.repositories.EnrollmentRepositoryImpl
 import com.example.meet4learn.data.repositories.ModuleRepositoryImpl
 import com.example.meet4learn.data.repositories.ProfileRepositoryImpl
+import com.example.meet4learn.data.repositories.SavedPaymentMethodRepositoryImpl
+import com.example.meet4learn.domain.repositories.CallRepository
+import com.example.meet4learn.domain.repositories.ChatMessageRepository
 import com.example.meet4learn.domain.repositories.CourseRepository
 import com.example.meet4learn.domain.repositories.EnrollmentRepository
 import com.example.meet4learn.domain.repositories.ModuleRepository
 import com.example.meet4learn.domain.repositories.ProfileRepository
+import com.example.meet4learn.domain.repositories.SavedPaymentMethodRepository
 import com.example.meet4learn.domain.usecase.LoginStudentUseCase
 import com.example.meet4learn.domain.usecase.RegisterStudentUseCase
 import io.ktor.client.engine.okhttp.OkHttp
@@ -53,6 +59,15 @@ class AppContainer (context: Context) {
     }
     val moduleRepository: ModuleRepository by lazy {
         ModuleRepositoryImpl(supabaseClient)
+    }
+    val savedPaymentMethodRepository: SavedPaymentMethodRepository by lazy {
+        SavedPaymentMethodRepositoryImpl(supabaseClient)
+    }
+    val callRepository: CallRepository by lazy {
+        CallRepositoryImpl(supabaseClient)
+    }
+    val chatMessageRepository: ChatMessageRepository by lazy {
+        ChatMessageRepositoryImpl(supabaseClient)
     }
     //UseCases.
     val loginStudentUseCase: LoginStudentUseCase by lazy {

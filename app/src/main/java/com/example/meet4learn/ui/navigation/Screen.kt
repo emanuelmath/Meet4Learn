@@ -14,4 +14,14 @@ sealed class Screen( val route: String) {
             return "course_details/$courseId"
         }
     }
+    object MyCourseDetails: Screen("my_course_details/{courseId}") {
+        fun courseSelected(courseId: Int): String {
+            return "my_course_details/$courseId"
+        }
+    }
+    object VideoCall: Screen("videocall/{moduleId}") {
+        fun moduleSelected(moduleId: Int): String {
+            return "videocall/$moduleId"
+        }
+    }
 }

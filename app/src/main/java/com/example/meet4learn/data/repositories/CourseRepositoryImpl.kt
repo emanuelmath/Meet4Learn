@@ -31,6 +31,17 @@ class CourseRepositoryImpl( val supabaseClient: SupabaseClient ) : CourseReposit
         return supabaseClient.from("course")
             .select(columns = Columns.ALL) {
             filter { eq("id", id) }
-        }.decodeSingle<CourseDTO>().toModel()
+        }.decodeSingleOrNull<CourseDTO>()?.toModel()
+    }
+
+    override suspend fun getCoursesByIds(courseIds: List<Int>): List<Course> {
+        if (courseIds.isEmpty()) return emptyList()
+
+        return supabaseClient.from("course")
+            .select(columns = Columns.ALL) {
+                filter {
+                    isIn("id", courseIds)
+                }
+            }.decodeList<CourseDTO>().map { it.toModel() }
     }
 }

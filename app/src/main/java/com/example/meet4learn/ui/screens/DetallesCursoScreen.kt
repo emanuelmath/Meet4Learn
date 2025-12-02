@@ -1,6 +1,7 @@
 package com.example.meet4learn.ui.screens
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,7 @@ import com.example.meet4learn.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -34,28 +36,35 @@ import com.example.meet4learn.ui.viewmodels.CourseDetailsViewModel
 @Composable
 fun DetallesCursoScreen(
     courseId: Int,
-    viewModel: CourseDetailsViewModel,
-    navController: NavController
+    courseDetailsViewModel: CourseDetailsViewModel,
+    navController: NavController,
+    onJoinCall: (Int) -> Unit
 ) {
+
+    BackHandler(enabled = true) {}
+
     LaunchedEffect(courseId) {
-        viewModel.loadCourseDetails(courseId)
+        courseDetailsViewModel.loadCourseDetails(courseId)
     }
 
-    val uiState = viewModel.uiState
+    val uiState = courseDetailsViewModel.uiState
+    val course = uiState.course
 
     if (uiState.isLoading) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = BluePrimary)
-        }
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         return
     }
 
-    if (uiState.errorMessage != null) {
-        Toast.makeText(LocalContext.current,
-            uiState.errorMessage, Toast.LENGTH_LONG).show()
+    if (uiState.isDialogOpen && uiState.selectedModule != null) {
+        ModuleInfoDialog(
+            module = uiState.selectedModule,
+            onDismiss = { courseDetailsViewModel.dismissDialog() },
+            onJoinClick = {
+                courseDetailsViewModel.dismissDialog()
+                onJoinCall(uiState.selectedModule.id)
+            }
+        )
     }
-
-    val course = uiState.course
 
     if (course != null) {
         Column(
@@ -64,6 +73,16 @@ fun DetallesCursoScreen(
                 .background(Color.White)
                 .padding(16.dp)
         ) {
+
+            Text(
+                text = "Mi Aula Virtual",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextColorDark
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -87,94 +106,65 @@ fun DetallesCursoScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E56A0)),
-                elevation = CardDefaults.cardElevation(8.dp)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(text = "PRECIO:", color = Color.White, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = course.price,
-                        color = Color.White,
-                        fontWeight = FontWeight.Black,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+            Text(text = "MÓDULOS", fontWeight = FontWeight.Black, color = Color(0xFF0D1B2A), fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(12.dp))
 
-                    Button(
-                        onClick = { viewModel.enrollInCourse() },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0A2C52)),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.align(Alignment.End),
-                        enabled = !uiState.isEnrolled
-                    ) {
-                        Icon(Icons.Default.Call, contentDescription = null, tint = Color.White)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (uiState.isEnrolled) "INSCRITO" else "UNIRSE", color = Color.White)
-                    }
+            if(uiState.modules.isEmpty()){
+                Box(Modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) {
+                    Text("El docente aún no ha publicado módulos.", color = Color.Gray)
                 }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF7DB9FF)),
-                elevation = CardDefaults.cardElevation(6.dp)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(text = "MÓDULOS", fontWeight = FontWeight.Black, color = Color(0xFF0D1B2A))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    if(uiState.modules == emptyList<Module>()){
-                        Text("Aún no hay módulos en este curso.")
-                    } else {
-                        LazyColumn {
-                            items(uiState.modules) { module ->
-                                ModuleItem(module.title)
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.modules) { module ->
+                        ModuleItem(
+                            texto = module.title,
+                            onClick = {
+                                courseDetailsViewModel.openModuleDialog(module)
                             }
-                        }
+                        )
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { navController.navigate(Screen.Main.route) },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E56A0))
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E56A0)),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("VOLVER")
+                Text("VOLVER A MIS CURSOS", fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
 @Composable
-fun ModuleItem(texto: String) {
+fun ModuleItem(texto: String, onClick: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFEB61)
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEB61)), // Amarillo
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Text(
-            text = texto,
-            modifier = Modifier.padding(12.dp),
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp,
-            color = Color(0xFF0D1B2A)
-        )
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null, tint = Color(0xFF0D1B2A))
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = texto,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp,
+                color = Color(0xFF0D1B2A)
+            )
+        }
     }
 }
 

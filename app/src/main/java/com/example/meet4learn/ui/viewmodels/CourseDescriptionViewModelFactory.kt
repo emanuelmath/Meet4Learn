@@ -8,19 +8,21 @@ import com.example.meet4learn.domain.repositories.EnrollmentRepository
 import com.example.meet4learn.domain.repositories.ModuleRepository
 import com.example.meet4learn.domain.repositories.ProfileRepository
 
-class CourseDetailsViewModelFactory(
+class CourseDescriptionViewModelFactory (
     private val courseRepository: CourseRepository,
     private val profileRepository: ProfileRepository,
-    private val moduleRepository: ModuleRepository
+    private val enrollmentRepository: EnrollmentRepository,
+    private val authRepository: AuthRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CourseDetailsViewModel::class.java)) {
-            return CourseDetailsViewModel(
+        if (modelClass.isAssignableFrom(CourseDescriptionViewModel::class.java)) {
+            return CourseDescriptionViewModel(
                 courseRepository,
                 profileRepository,
-                moduleRepository
+                enrollmentRepository,
+                authRepository
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

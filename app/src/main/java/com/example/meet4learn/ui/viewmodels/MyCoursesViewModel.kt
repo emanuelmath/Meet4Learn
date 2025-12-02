@@ -11,11 +11,13 @@ import com.example.meet4learn.domain.models.Enrollment
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.domain.repositories.CourseRepository
 import com.example.meet4learn.domain.repositories.EnrollmentRepository
+import com.example.meet4learn.domain.repositories.ProfileRepository
 import kotlinx.coroutines.launch
 
 class MyCoursesViewModel(private val courseRepository: CourseRepository,
                          private val enrollmentRepository: EnrollmentRepository,
-                         private val authRepository: AuthRepository
+                         private val authRepository: AuthRepository,
+                         private val profileRepository: ProfileRepository
     ) : ViewModel() {
 
     var uiState by mutableStateOf(MyCoursesUiState())
@@ -30,34 +32,48 @@ class MyCoursesViewModel(private val courseRepository: CourseRepository,
             getMyCourses()
         }
     }
-    fun getMyEnrollments(studentId: String) {
-        viewModelScope.launch {
-            uiState.copy(myEnrollments = enrollmentRepository.getMyEnrollments(studentId))
-        }
+    private suspend fun getMyEnrollments(studentId: String): List<Enrollment> {
+        return enrollmentRepository.getMyEnrollments(studentId)
     }
 
-    fun getCourseById(idCourse: Int): Course? {
-        var course: Course? = null
-        viewModelScope.launch {
-             course = courseRepository.getCourseById(idCourse)
-        }
-        return course
+    private suspend fun getCourseById(idCourse: Int): Course? {
+        return courseRepository.getCourseById(idCourse)
     }
 
-    fun getMyCourses() {
+    fun getMyCourses(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            val studentId = id
+            if (isRefresh) uiState = uiState.copy(isRefreshing = true)
+            else uiState = uiState.copy(isLoading = true)
 
-            getMyEnrollments(studentId)
+            try {
+                val studentId = id
 
-            val courseList = mutableListOf<Course>()
-            for (enrollment in uiState.myEnrollments) {
-                Log.e("ENROLLMENT", "${enrollment.courseId}")
-                val course = getCourseById(enrollment.courseId)
-                if (course != null) courseList.add(course)
+                val enrollments = getMyEnrollments(studentId)
+                val courseIds = enrollments.map { it.courseId }
+
+                val courseList = courseRepository.getCoursesByIds(courseIds)
+
+                val teacherIds = courseList.map { it.teacherId }.distinct()
+                val namesMap = mutableMapOf<String, String>()
+
+                for (tId in teacherIds) {
+                    val result = profileRepository.getTeacherName(tId)
+                    val name = result.getOrNull() ?: "Desconocido"
+                    namesMap[tId] = name
+                }
+
+                uiState = uiState.copy(
+                    myEnrollments = enrollments,
+                    myCourses = courseList,
+                    teacherNames = namesMap,
+                    isLoading = false,
+                    isRefreshing = false
+                )
+
+            } catch (e: Exception) {
+                Log.e("MyCoursesVM", "Error", e)
+                uiState = uiState.copy(isLoading = false, isRefreshing = false)
             }
-
-            uiState = uiState.copy(myCourses = courseList, isLoading = false)
         }
     }
 

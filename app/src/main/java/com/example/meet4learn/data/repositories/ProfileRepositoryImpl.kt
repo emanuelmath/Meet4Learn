@@ -1,11 +1,16 @@
 package com.example.meet4learn.data.repositories
 
+import android.util.Log
 import com.example.meet4learn.data.dto.ProfileDTO
 import com.example.meet4learn.data.mappers.toModel
+import com.example.meet4learn.domain.models.Profile
 import com.example.meet4learn.domain.repositories.ProfileRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.buildJsonObject
+
 
 class ProfileRepositoryImpl( val supabaseClient: SupabaseClient) : ProfileRepository {
     override suspend fun getUserRole(userId: String): Result<String> {
@@ -60,6 +65,29 @@ class ProfileRepositoryImpl( val supabaseClient: SupabaseClient) : ProfileReposi
         }
     }
 
+    override suspend fun getStudentById(studentId: String): Profile? {
+        return try {
+                supabaseClient.from("profile").select {
+                filter {
+                    eq("id", studentId)
+                }
+            }.decodeSingle<ProfileDTO>().toModel()
 
+        } catch(e: Exception) {
+            Log.d("getStudentById", e.message ?: "Error desconocido.")
+            null
+        }
+    }
 
+    override suspend fun updateBalance(amount: Double, studentId: String) {
+        supabaseClient.from("profile").update(
+            buildJsonObject {
+                put("balance", amount)
+            }
+        ) {
+            filter {
+                eq("id", studentId)
+            }
+        }
+    }
 }

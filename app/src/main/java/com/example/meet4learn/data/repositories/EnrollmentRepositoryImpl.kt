@@ -19,6 +19,8 @@ class EnrollmentRepositoryImpl( private val supabaseClient: SupabaseClient ) : E
     }
 
     override suspend fun enrollStudent(userId: String, courseId: Int) {
-        TODO("Not yet implemented")
+        supabaseClient.from("enrollments").insert(
+            EnrollmentDTO(studentId = userId, courseId = courseId)
+        )
     }
 }

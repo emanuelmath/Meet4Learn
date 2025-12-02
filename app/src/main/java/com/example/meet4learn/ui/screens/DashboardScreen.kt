@@ -22,6 +22,7 @@ import com.example.meet4learn.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -29,8 +30,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.meet4learn.ui.theme.*
 import com.example.meet4learn.ui.utils.CourseUI
+import androidx.lifecycle.LifecycleEventObserver
+
 
 @Composable
 fun DashboardScreen(
@@ -39,12 +44,27 @@ fun DashboardScreen(
 ) {
     val uiState = dashboardViewModel.uiState
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver{ source, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                dashboardViewModel.getAllCourses()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     val uiCourses = uiState.courses.map { course ->
         CourseUI(
             id = course.id,
             name = course.name,
             price = "$ ${course.price}",
-            docentName = uiState.teacherNames[course.teacherId] ?: "Desconocido"
+            docentName = uiState.teacherNames[course.teacherId] ?: "Desconocido",
+            description = course.description ?: "No tiene descripción."
         )
     }
             Column(
@@ -90,6 +110,7 @@ fun DashboardScreen(
                 }
             }
 }
+
 
 @Composable
     fun CourseCard(course: CourseUI, onDetailClick: () -> Unit) {

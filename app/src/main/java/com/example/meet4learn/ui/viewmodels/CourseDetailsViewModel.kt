@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.meet4learn.domain.models.Module
 import com.example.meet4learn.domain.repositories.AuthRepository
 import com.example.meet4learn.domain.repositories.CourseRepository
 import com.example.meet4learn.domain.repositories.EnrollmentRepository
@@ -16,8 +17,6 @@ import kotlinx.coroutines.launch
 class CourseDetailsViewModel(
     private val courseRepository: CourseRepository,
     private val profileRepository: ProfileRepository,
-    private val enrollmentRepository: EnrollmentRepository,
-    private val authRepository: AuthRepository,
     private val moduleRepository: ModuleRepository
 ) : ViewModel() {
 
@@ -26,9 +25,8 @@ class CourseDetailsViewModel(
 
     fun loadCourseDetails(courseId: Int) {
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, errorMessage = null)
+            uiState = uiState.copy(isLoading = true)
             try {
-
                 val domainCourse = courseRepository.getCourseById(courseId)
 
                 if (domainCourse != null) {
@@ -37,60 +35,104 @@ class CourseDetailsViewModel(
                     val visualCourse = CourseUI(
                         id = domainCourse.id,
                         name = domainCourse.name,
-                        price = "$ ${domainCourse.price}",
-                        docentName = teacherName
+                        price = "",
+                        docentName = teacherName,
+                        description = ""
                     )
 
                     val modules = moduleRepository.getModulesByCourseId(courseId)
 
                     uiState = uiState.copy(
                         isLoading = false,
-                        modules = modules,
-                        course = visualCourse
+                        course = visualCourse,
+                        modules = modules
                     )
-
-                    // 4. (Opcional) Verificar si ya está inscrito
-                    // checkEnrollmentStatus(courseId)
-
-                } else {
-                    uiState = uiState.copy(isLoading = false, errorMessage = "Curso no encontrado")
                 }
             } catch (e: Exception) {
-                uiState = uiState.copy(isLoading = false, errorMessage = e.message)
+                uiState = uiState.copy(isLoading = false, errorMessage = "Error cargando contenido.")
             }
         }
     }
 
-    fun enrollInCourse() {
-        val currentCourse = uiState.course ?: return
-        viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
-            try {
-                val domainCourse = courseRepository.getCourseById(uiState.course!!.id)
-                val userId = authRepository.getCurrentUserId()
-                if (userId != null && domainCourse != null) {
-                    val balanceResult = profileRepository.getStudentBalance(userId)
-                    if(balanceResult.isSuccess) {
-                        if ((balanceResult.getOrDefault(-1.0) - domainCourse.price) >= 0) {
-                            enrollmentRepository.enrollStudent(userId, currentCourse.id)
-                            uiState = uiState.copy(isLoading = false, enrollmentSuccess = true, isEnrolled = true)
-                        } else {
-                            uiState = uiState.copy(isLoading = false, enrollmentSuccess = false, isEnrolled = false,
-                                errorMessage = "No tienes saldo suficiente.")
-                        }
-                    } else {
-                        uiState = uiState.copy(isLoading = false, enrollmentSuccess = false, isEnrolled = false,
-                            errorMessage = "No se pudo recuperar tu saldo.")
-                    }
-                }
-            } catch (e: Exception) {
-                uiState = uiState.copy(isLoading = false, errorMessage = "Error al inscribirse: ${e.message}")
-            }
-        }
+    fun openModuleDialog(module: Module) {
+        uiState = uiState.copy(selectedModule = module, isDialogOpen = true)
     }
 
-    // Resetear mensaje de éxito tras mostrar Toast
-    fun resetEnrollmentSuccess() {
-        uiState = uiState.copy(enrollmentSuccess = false)
+    fun dismissDialog() {
+        uiState = uiState.copy(selectedModule = null, isDialogOpen = false)
     }
 }
+
+//    fun loadCourseDetails(courseId: Int) {
+//        viewModelScope.launch {
+//            uiState = uiState.copy(isLoading = true, errorMessage = null)
+//            try {
+//
+//                val domainCourse = courseRepository.getCourseById(courseId)
+//
+//                if (domainCourse != null) {
+//                    val teacherName = profileRepository.getTeacherName(domainCourse.teacherId).getOrDefault("Desconocido")
+//
+//                    val visualCourse = CourseUI(
+//                        id = domainCourse.id,
+//                        name = domainCourse.name,
+//                        price = "$ ${domainCourse.price}",
+//                        docentName = teacherName,
+//                        description = domainCourse.description ?: "No tiene descripción."
+//                    )
+//
+//                    val modules = moduleRepository.getModulesByCourseId(courseId)
+//
+//                    uiState = uiState.copy(
+//                        isLoading = false,
+//                        modules = modules,
+//                        course = visualCourse
+//                    )
+//
+//                    // Verificar si ya está inscrito...
+//                    // checkEnrollmentStatus(courseId)
+//
+//                } else {
+//                    uiState = uiState.copy(isLoading = false, errorMessage = "Curso no encontrado")
+//                }
+//            } catch (e: Exception) {
+//                uiState = uiState.copy(isLoading = false, errorMessage = e.message)
+//            }
+//        }
+//    }
+//
+//    fun enrollInCourse() {
+//        val currentCourse = uiState.course ?: return
+//        viewModelScope.launch {
+//            uiState = uiState.copy(isLoading = true)
+//            try {
+//                val domainCourse = courseRepository.getCourseById(uiState.course!!.id)
+//                val userId = authRepository.getCurrentUserId()
+//                if (userId != null && domainCourse != null) {
+//                    val balanceResult = profileRepository.getStudentBalance(userId)
+//                    if(balanceResult.isSuccess) {
+//                        if ((balanceResult.getOrDefault(-1.0) - domainCourse.price) >= 0) {
+//                            val amount = balanceResult.getOrDefault(-1.0) - domainCourse.price
+//                            enrollmentRepository.enrollStudent(userId, currentCourse.id)
+//                            profileRepository.updateBalance(amount, userId)
+//                            uiState = uiState.copy(isLoading = false, enrollmentSuccess = true, isEnrolled = true,
+//                                successMessage = "¡Te has inscrito exitosamente!")
+//                        } else {
+//                            uiState = uiState.copy(isLoading = false, enrollmentSuccess = false, isEnrolled = false,
+//                                errorMessage = "No tienes saldo suficiente.")
+//                        }
+//                    } else {
+//                        uiState = uiState.copy(isLoading = false, enrollmentSuccess = false, isEnrolled = false,
+//                            errorMessage = "No se pudo recuperar tu saldo.")
+//                    }
+//                }
+//            } catch (e: Exception) {
+//                uiState = uiState.copy(isLoading = false, errorMessage = "Error al inscribirse: ${e.message}")
+//            }
+//        }
+//    }
+//
+//    fun resetEnrollmentSuccess() {
+//        uiState = uiState.copy(enrollmentSuccess = false)
+//    }
+

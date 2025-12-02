@@ -20,12 +20,16 @@ import com.example.meet4learn.ui.navigation.Screen
 import com.example.meet4learn.ui.components.Meet4LearnBottomBar
 import com.example.meet4learn.ui.components.Meet4LearnTopBar
 import com.example.meet4learn.ui.utils.CourseUI
+import com.example.meet4learn.ui.viewmodels.CourseDescriptionViewModel
+import com.example.meet4learn.ui.viewmodels.CourseDescriptionViewModelFactory
 import com.example.meet4learn.ui.viewmodels.CourseDetailsViewModel
 import com.example.meet4learn.ui.viewmodels.CourseDetailsViewModelFactory
 import com.example.meet4learn.ui.viewmodels.DashboardViewModel
 import com.example.meet4learn.ui.viewmodels.DashboardViewModelFactory
 import com.example.meet4learn.ui.viewmodels.MyCoursesViewModel
 import com.example.meet4learn.ui.viewmodels.MyCoursesViewModelFactory
+import com.example.meet4learn.ui.viewmodels.StudentProfileViewModel
+import com.example.meet4learn.ui.viewmodels.StudentProfileViewModelFactory
 
 @Composable
 fun MainScreen(
@@ -34,18 +38,33 @@ fun MainScreen(
 ) {
     val homeNavController = rememberNavController()
     val dashboardViewModel: DashboardViewModel = viewModel(
-        factory = DashboardViewModelFactory(appContainer.authRepository, appContainer.courseRepository, appContainer.profileRepository)
+        factory = DashboardViewModelFactory(appContainer.authRepository, appContainer.courseRepository, appContainer.profileRepository, appContainer.enrollmentRepository)
     )
     val myCoursesViewModel: MyCoursesViewModel = viewModel(
-        factory = MyCoursesViewModelFactory(appContainer.courseRepository, appContainer.enrollmentRepository, appContainer.authRepository)
+        factory = MyCoursesViewModelFactory(appContainer.courseRepository, appContainer.enrollmentRepository, appContainer.authRepository, appContainer.profileRepository)
     )
-    val detailsViewModel: CourseDetailsViewModel = viewModel(
+
+    val studentProfileViewModel: StudentProfileViewModel = viewModel(
+        factory = StudentProfileViewModelFactory(
+            appContainer.savedPaymentMethodRepository,
+            appContainer.profileRepository,
+            appContainer.authRepository
+        )
+    )
+    val courseDetailsViewModel: CourseDetailsViewModel = viewModel(
         factory = CourseDetailsViewModelFactory(
-            courseRepository = appContainer.courseRepository,
-            profileRepository = appContainer.profileRepository,
-            enrollmentRepository = appContainer.enrollmentRepository,
-            authRepository = appContainer.authRepository,
-            moduleRepository = appContainer.moduleRepository
+            appContainer.courseRepository,
+            appContainer.profileRepository,
+            appContainer.moduleRepository
+        )
+    )
+
+    val courseDescriptionViewModel: CourseDescriptionViewModel = viewModel(
+        factory = CourseDescriptionViewModelFactory(
+            appContainer.courseRepository,
+            appContainer.profileRepository,
+            appContainer.enrollmentRepository,
+            appContainer.authRepository
         )
     )
 
@@ -65,7 +84,7 @@ fun MainScreen(
 
             composable(Screen.MyCourses.route) {
 
-                MyCoursesScreen(myCoursesViewModel)
+                MyCoursesScreen(myCoursesViewModel, homeNavController)
             }
 
             composable(Screen.Calendar.route) {
@@ -73,7 +92,7 @@ fun MainScreen(
             }
 
             composable(Screen.Profile.route) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Perfil") }
+                UsuarioScreen(studentProfileViewModel)
             }
 
             composable(
@@ -82,11 +101,26 @@ fun MainScreen(
             ) { backStackEntry ->
                 val courseId = backStackEntry.arguments?.getInt("courseId") ?: return@composable
 
+                DescripcionCursosScreen(
+                    courseId = courseId,
+                    courseDescriptionViewModel = courseDescriptionViewModel,
+                    navController = homeNavController
+                )
+            }
+
+            composable(
+                route = Screen.MyCourseDetails.route,
+                arguments = listOf(navArgument("courseId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val courseId = backStackEntry.arguments?.getInt("courseId") ?: return@composable
 
                 DetallesCursoScreen(
                     courseId = courseId,
-                    viewModel = detailsViewModel,
-                    navController = navController
+                    courseDetailsViewModel = courseDetailsViewModel,
+                    navController = homeNavController,
+                    onJoinCall = { moduleId ->
+                        navController.navigate(Screen.VideoCall.moduleSelected(moduleId))
+                    }
                 )
             }
         }

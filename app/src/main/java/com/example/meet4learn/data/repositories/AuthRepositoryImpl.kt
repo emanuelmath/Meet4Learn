@@ -57,4 +57,8 @@ class AuthRepositoryImpl( private val supabaseClient: SupabaseClient ) : AuthRep
         }
     }
 
+    override fun getCurrentUserEmail(): String? {
+        return supabaseClient.auth.currentUserOrNull()?.email
+    }
+
 }
